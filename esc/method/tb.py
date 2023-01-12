@@ -4,7 +4,7 @@ Tight-binding
 
 Author: Gokhan Oztarhan
 Created date: 29/08/2019
-Last modified: 09/02/2021
+Last modified: 10/01/2023
 """
 
 import time
@@ -35,5 +35,5 @@ def tb(Htb, n_up, n_dn):
     E_total = np.trace((rho_up + rho_dn) @ Htb)
     logger.info('E_total = %.15f eV\n\n' %(E_total))
             
-    return E, V
+    return E, V, E_total
 

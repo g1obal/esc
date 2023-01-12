@@ -3,7 +3,7 @@ Data module
 
 Author: Gokhan Oztarhan
 Created date: 11/12/2021
-Last modified: 03/12/2022
+Last modified: 10/01/2023
 """
 
 import os
@@ -33,12 +33,14 @@ def save_data():
             'ind_NN_2nd': cfg.ind_NN_2nd,
             't': cfg.t,
             'tp': cfg.tp,
+            'total_charge': cfg.total_charge,
             'n_elec': cfg.n_elec,
             'n_up': cfg.n_up, 
             'n_dn': cfg.n_dn,
             'Htb': method.Htb,
             'E': method.E, 
             'V': method.V,
+            'E_total': method.E_total,
         }
     elif cfg.mode == 'mfh':
         data_dict = {
@@ -49,7 +51,6 @@ def save_data():
             'ind_NN_2nd': cfg.ind_NN_2nd,
             't': cfg.t, 
             'tp': cfg.tp,
-            'n_elec': cfg.n_elec,
             'U': cfg.U,
             'U_long_range': cfg.U_long_range,
             'U1': cfg.U1,
@@ -60,6 +61,8 @@ def save_data():
             'iter_lim': cfg.iter_lim,
             'initial_density': cfg.initial_density,
             'random_seed': cfg.random_seed,
+            'total_charge': cfg.total_charge,
+            'n_elec': cfg.n_elec,
             'n_up': cfg.n_up, 
             'n_dn': cfg.n_dn,
             'Hmfh_up': method.Hmfh_up, 
@@ -68,6 +71,7 @@ def save_data():
             'E_dn': method.E_dn,
             'V_up': method.V_up, 
             'V_dn': method.V_dn,
+            'E_total': method.E_total,
         }
   
     fname = os.path.join(cfg.root_dir, cfg.data_file)      

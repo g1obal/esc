@@ -13,7 +13,7 @@ Hamiltonians are real symmetric matrices. Otherwise, use numpy.eig() function.
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 03/12/2022
+Last modified: 09/01/2023
 """
 
 import logging
@@ -39,12 +39,14 @@ E_up = None
 E_dn = None
 V_up = None
 V_dn = None
+E_total = None
 
 
 def init():
     global start, orb_coef
     global Htb, E, V
     global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn
+    global E_total
 
     # Reset variables
     start = None
@@ -58,13 +60,14 @@ def init():
     E_dn = None
     V_up = None
     V_dn = None
+    E_total = None
 
     # Print initialization info
     logger.info('[method]\n--------\n')
 
     # Form the tight-binding Hamiltonian matrix
     Htb = hamiltonian_tb(
-        cfg.t, cfg.tp, cfg.ind_NN, cfg.ind_NN_2nd, cfg.n_elec
+        cfg.t, cfg.tp, cfg.ind_NN, cfg.ind_NN_2nd, cfg.n_site
     )
 
     # Set the module functions
@@ -78,24 +81,24 @@ def init():
             
             
 def _method_tb():
-    global E, V
+    global E, V, E_total
     
     # Diagonalization of the tight-binding Hamiltonian
-    E, V = tb(Htb, cfg.n_up, cfg.n_dn)
+    E, V, E_total = tb(Htb, cfg.n_up, cfg.n_dn)
 
 
 def _method_mfh():
-    global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn
+    global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn, E_total
     
     # Initialize trial electron densities
     n_ave_up, n_ave_dn = init_mfh_density(
-        cfg.initial_density, Htb, cfg.n_elec, 
+        cfg.initial_density, Htb, cfg.n_site, 
         cfg.n_up, cfg.n_dn, 
         cfg.ind_up, cfg.ind_dn
     )
 
     # Self-consistent loop for the mean-field Hubbard Hamiltonian
-    Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn = mfh(
+    Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn, E_total = mfh(
         Htb, cfg.U, cfg.mix_ratio, cfg.delta_E_lim, cfg.iter_lim, 
         cfg.n_up, cfg.n_dn, n_ave_up, n_ave_dn, U_LR=cfg.U_LR
     )

@@ -7,7 +7,7 @@ this module works similar to a singleton.
 
 Author: Gokhan Oztarhan
 Created date: 06/03/2021
-Last modified: 04/12/2022
+Last modified: 11/01/2023
 """
 
 from os import urandom
@@ -31,7 +31,7 @@ _FLK_TYPE = {
 _INITIAL_DENSITY = {
     0: 'tight-binding',
     1: 'tight-binding + spin symmetry breaking',
-    2: 'antiferromagnetic',
+    2: 'spin_order',
     3: 'random(integer)',
     4: 'random(float)',
     5: 'zero'
@@ -69,20 +69,24 @@ delta_E_lim = 1e-11 # energy difference threshold to end self consistent loop
 iter_lim = 500 # iteration limit
 initial_density = 2 # 0: tight-binding,
                     # 1: tight-binding + spin symmetry breaking,
-                    # 2: antiferromagnetic, 
+                    # 2: spin_order,
                     # 3: random(integer), 
                     # 4: random(float),
                     # 5: zero
 random_seed = None # random seed for initial density
 
-# [spin]
-# spin_order, this parameter is to calculate the number of up and dn electrons
-# antiferromagnetic: n_up and n_dn are chosen as if
-#                    they are located in an antiferromagnetic phase
-# ferromagnetic: n_up = n_elec
-spin_order = 'antiferromagnetic'
-# Sz, optional (default is None)
-Sz = None
+# [electron]
+total_charge = None # set total number of electrons, n_elec
+                    # None or 0 for charge neutral system
+Sz = None # total spin; to calculate the number of up and down electrons
+          # None to arrange n_up and n_dn according to Lieb's theorem
+spin_order = 'AFM' # electrons are located in a spin order (for MFH init)
+                   # AFM: antiferromagnetic, FM: ferromagnetic
+spin_order_direction = 1 # the direction in which electrons are located
+                         # 0: add electrons from outside to inside, 
+                         #    additional electrons from inside to outside.
+                         # 1: add electrons from inside to outside, 
+                         #    additional electrons from outside to inside. 
 
 # [lattice]
 a = 50e-9
@@ -105,7 +109,8 @@ plot_dpi = 600
 plot_format = 'jpg'
 
 # Dynamic run variables
-nelec = None
+n_site = None
+n_elec = None
 n_up = None
 n_dn = None
 ind_up = None
@@ -127,7 +132,7 @@ def update(var_dict):
   
 
 def set():
-    global n_elec, n_up, n_dn, ind_up, ind_dn
+    global n_site, n_elec, n_up, n_dn, ind_up, ind_dn
     global pos, ind_NN, ind_NN_2nd, Sz_calc
     global U_LR, U1, U2, U3
     global U1_auto_calc, U2_auto_calc, U3_auto_calc
@@ -144,18 +149,18 @@ def set():
     lattice = Lattice(
         lat_type, _FLK_TYPE[flk_type], 
         a, n_side, width=width, bc=bc,
-        com_to_origin=com_to_origin,
-        debug=False
+        com_to_origin=com_to_origin
     )
     
-    n_elec = lattice.n_total
-    
-    lattice.set_spin(
-        n_elec,
+    lattice.set(
+        total_charge=total_charge, 
+        Sz=Sz, 
         spin_order=spin_order,
-        Sz=Sz
+        spin_order_direction=spin_order_direction
     )
 
+    n_site = lattice.n_site
+    n_elec = lattice.n_elec
     n_up = lattice.n_up
     n_dn = lattice.n_dn
     ind_up = lattice.ind_up
@@ -227,8 +232,11 @@ def print_info():
         string = 'mode = %s\n\n' %mode \
                + 't = %.5e eV\n' %t \
                + 'tp = %.5e eV\n\n' %tp \
+               + 'total_charge = %s\n' %total_charge \
+               + 'Sz = %-6s\n' %Sz \
                + 'spin_order = %s\n' %spin_order \
-               + 'Sz = %-6s\n\n' %Sz \
+               + 'spin_order_direction = %s\n\n' %spin_order_direction \
+               + 'n_elec = %i\n' %n_elec \
                + 'n_up = %i\n' %n_up \
                + 'n_dn = %i\n' %n_dn \
                + 'Sz_calc = %.1f\n\n' %Sz_calc
@@ -272,11 +280,15 @@ def print_info():
            + 'initial_density = %d (%s)\n' \
            %(initial_density, _INITIAL_DENSITY[initial_density]) \
            + random_seed_line + '\n\n' \
+           + 'total_charge = %s\n' %total_charge \
+           + 'Sz = %-6s\n' %Sz \
            + 'spin_order = %s\n' %spin_order \
-           + 'Sz = %-6s\n\n' %Sz \
+           + 'spin_order_direction = %s\n\n' %spin_order_direction \
+           + 'n_elec = %i\n' %n_elec \
            + 'n_up = %i\n' %n_up \
            + 'n_dn = %i\n' %n_dn \
            + 'Sz_calc = %.1f\n\n' %Sz_calc
+           
     logger.info(string)
 
 
@@ -317,9 +329,11 @@ def parse_config_file(fname):
     parser.set_type('mfh', 'initial_density', int)
     parser.set_type('mfh', 'random_seed', int, can_be_None=True)
 
-    # [spin]
-    parser.set_type('spin', 'spin_order', str)
-    parser.set_type('spin', 'Sz', float, can_be_None=True)
+    # [electron]
+    parser.set_type('electron', 'total_charge', int, can_be_None=True)
+    parser.set_type('electron', 'Sz', float, can_be_None=True)
+    parser.set_type('electron', 'spin_order', str)
+    parser.set_type('electron', 'spin_order_direction', int)
         
     # [lattice]
     parser.set_type('lattice', 'a', float)

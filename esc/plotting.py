@@ -3,7 +3,7 @@ Figure plotting module
 
 Author: Gokhan Oztarhan
 Created date: 24/07/2019
-Last modified: 02/12/2022
+Last modified: 10/01/2023
 """
 
 import os
@@ -240,11 +240,12 @@ def plot_summary(
     ax_info = fig.add_subplot(1,1,1)
     ax_info.clear()
     ax_info.axis('off')
-    info_str = 'mode = %s' %mode
-    info_str += '\nn\_elec = %i, ' %(n_up + n_dn) \
-       + 'n\_up = %i, ' %n_up \
-       + 'n\_dn = %i, ' %n_dn \
-       + 'Sz = %.2f' %(0.5 * (n_up - n_dn))
+    info_str = 'mode = %s, ' %mode \
+        + 'n\_site = %i, ' %pos.shape[0] \
+        + 'n\_elec = %i' %(n_up + n_dn) \
+        + '\nn\_up = %i, ' %n_up \
+        + 'n\_dn = %i, ' %n_dn \
+        + 'Sz = %.2f' %(0.5 * (n_up - n_dn))
     ax_info.text(0.5, 1.071, info_str, ha='center', fontsize=6)  
     
     info_str = '$t = %.5e$\n' %t + '$tp = %.5e$' %tp  

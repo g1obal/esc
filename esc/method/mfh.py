@@ -4,7 +4,7 @@ Mean-field Hubbard
 
 Author: Gokhan Oztarhan
 Created date: 29/08/2019
-Last modified: 03/12/2022
+Last modified: 10/01/2023
 """
 
 import logging
@@ -91,11 +91,11 @@ def mfh(
     logger.info('Total number of iterations = %i\n' %(i + 1) \
         + 'mfh done. (%.3f s)\n\n' %(toc_mfh - tic_mfh))
          
-    return Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn
+    return Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn, E_total
     
 
 def init_mfh_density(
-    initial_density, Htb, n_elec, n_up, n_dn, ind_up, ind_dn
+    initial_density, Htb, n_site, n_up, n_dn, ind_up, ind_dn
 ):
     # tight-binding
     if initial_density == 0:
@@ -111,26 +111,26 @@ def init_mfh_density(
         rho_up = V[:,:n_up] @ V[:,:n_up].conj().T
         rho_dn = V[:,:n_dn] @ V[:,:n_dn].conj().T 
         n_ave_up = deepcopy(rho_up.diagonal()) \
-                   + (np.random.rand(n_elec) - 0.5) * 2e-3 \
-                   + (np.random.rand(n_elec) - 0.5) * 2e-2
+                   + (np.random.rand(n_site) - 0.5) * 2e-3 \
+                   + (np.random.rand(n_site) - 0.5) * 2e-2
         n_ave_dn = deepcopy(rho_dn.diagonal()) \
-                   + (np.random.rand(n_elec) - 0.5) * 2e-3 \
-                   + (np.random.rand(n_elec) - 0.5) * 2e-2
+                   + (np.random.rand(n_site) - 0.5) * 2e-3 \
+                   + (np.random.rand(n_site) - 0.5) * 2e-2
 
-    # antiferromagnetic
+    # spin_order
     elif initial_density == 2:
-        n_ave_up = np.zeros(n_elec)
-        n_ave_dn = np.zeros(n_elec)
+        n_ave_up = np.zeros(n_site)
+        n_ave_dn = np.zeros(n_site)
         n_ave_up[ind_up] = 1.0
         n_ave_dn[ind_dn] = 1.0
         
     # random(integer)
     elif initial_density == 3:
-        n_ave_up = np.zeros(n_elec)
-        n_ave_dn = np.zeros(n_elec)
-        ind = np.random.permutation(np.arange(n_elec))
+        n_ave_up = np.zeros(n_site)
+        n_ave_dn = np.zeros(n_site)
+        ind = np.random.permutation(np.arange(n_site))
         n_ave_up[ind[:n_up]] = 1
-        ind = np.random.permutation(np.arange(n_elec))
+        ind = np.random.permutation(np.arange(n_site))
         n_ave_dn[ind[:n_dn]] = 1 
         
     # random(float)
@@ -144,7 +144,7 @@ def init_mfh_density(
     # Thus, the sum will give 'n_up' ('n_dn') since they are orthonormal.
     elif initial_density == 4:
         Q = np.linalg.qr(
-            np.random.rand(n_elec,n_elec),
+            np.random.rand(n_site,n_site),
             mode='complete'
         )[0]
         #rho_up = Q[:,:n_up] @ Q[:,:n_up].conj().T
@@ -152,7 +152,7 @@ def init_mfh_density(
         n_ave_up = (Q[:,:n_up]**2).sum(axis=1)
         
         Q = np.linalg.qr(
-            np.random.rand(n_elec,n_elec),
+            np.random.rand(n_site,n_site),
             mode='complete'
         )[0]
         #rho_dn = Q[:,:n_dn] @ Q[:,:n_dn].conj().T
@@ -161,8 +161,8 @@ def init_mfh_density(
         
     # zero
     elif initial_density == 5:
-        n_ave_up = np.zeros(n_elec)
-        n_ave_dn = np.zeros(n_elec)
+        n_ave_up = np.zeros(n_site)
+        n_ave_dn = np.zeros(n_site)
 
     return n_ave_up, n_ave_dn
 

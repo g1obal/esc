@@ -3,7 +3,7 @@ Hamiltonian Generator
 
 Author: Gokhan Oztarhan
 Created date: 20/07/2019
-Last modified: 03/12/2022
+Last modified: 09/01/2023
 """
 
 import time
@@ -15,7 +15,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_elec):
+def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_site):
     """
     Generates tight-binding hamiltonian matrix.
     
@@ -28,7 +28,7 @@ def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_elec):
     """
     tic = time.time()
     
-    H = np.zeros([n_elec,n_elec])
+    H = np.zeros([n_site,n_site])
     
     # 1st nearest neighbor hopping
     H[ind_NN[:,0],ind_NN[:,1]] = -t
