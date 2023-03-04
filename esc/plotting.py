@@ -3,7 +3,7 @@ Figure plotting module
 
 Author: Gokhan Oztarhan
 Created date: 24/07/2019
-Last modified: 10/01/2023
+Last modified: 04/03/2023
 """
 
 import os
@@ -45,9 +45,12 @@ def plot():
         V_up, V_dn = method.V_up, method.V_dn
         
     plot_summary(
-        cfg.mode, E_up, E_dn, cfg.n_up, cfg.n_dn, 
-        cfg.a, cfg.pos, cfg.ind_NN, V_up, V_dn, 0,
-        cfg.t, cfg.U, cfg.tp, cfg.U_long_range,
+        cfg.mode, cfg.eunit, cfg.lunit,
+        E_up, E_dn, cfg.n_up, cfg.n_dn, 
+        cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, V_up, V_dn, 0,
+        cfg.t, cfg.t_nau, cfg.tp, cfg.tp_nau, 
+        cfg.U, cfg.U_nau, cfg.U_long_range, cfg.U1_U2_scaling,
+        method.E_total, method.E_total_nau,
         cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution,
@@ -60,18 +63,25 @@ def replot(data):
         E_up, E_dn = data['E'], data['E']
         V_up, V_dn = data['V'], data['V']
         U = None
+        U_nau = None
         U_long_range = None
+        U1_U2_scaling = None
         
     elif data['mode'] == 'mfh':
         E_up, E_dn = data['E_up'], data['E_dn']
         V_up, V_dn = data['V_up'], data['V_dn']
         U = data['U']
+        U_nau = data['U_nau']
         U_long_range = data['U_long_range']
-        
+        U1_U2_scaling = data['U1_U2_scaling']
+    
     plot_summary(
-        data['mode'], E_up, E_dn, data['n_up'], data['n_dn'], 
-        data['a'], data['pos'], data['ind_NN'], V_up, V_dn, 0,
-        data['t'], U, data['tp'], U_long_range,
+        data['mode'], data['eunit'], data['lunit'],
+        E_up, E_dn, data['n_up'], data['n_dn'], 
+        data['a'], data['a_nau'], data['pos'], data['ind_NN'], V_up, V_dn, 0,
+        data['t'], data['t_nau'], data['tp'], data['tp_nau'], 
+        U, U_nau, U_long_range, U1_U2_scaling,
+        data['E_total'], data['E_total_nau'],
         cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution, 
@@ -173,14 +183,18 @@ def electron_densities(
 #------------------------------------------------------------------------------
 
 def plot_summary(
-    mode, E_up, E_dn, n_up, n_dn, 
-    a, pos, ind_NN, V_up, V_dn, n_start,
-    t, U, tp, U_long_range,
+    mode, eunit, lunit, E_up, E_dn, n_up, n_dn, 
+    a, a_nau, pos, ind_NN, V_up, V_dn, n_start,
+    t, t_nau, tp, tp_nau, U, U_nau, U_long_range,
+    U1_U2_scaling, E_total, E_total_nau,
     root_dir, plot_E_limit=None, 
     dos_kde_sigma=None, psi2_kde_sigma=None, 
     mesh_resolution=500, dpi=600, _format='jpg'
 ):
     tic_all = time.time()
+    
+    # Print info start
+    logger.info('[plotting]\n----------\n')
     
     # Initialize figure
     fig = plt.figure(figsize=plt.figaspect(0.80))
@@ -203,11 +217,15 @@ def plot_summary(
             _ax.spines[axis].set_linewidth(0.40)
         _ax.tick_params(width=0.40, length=2.0)
     
+    # Calculate energy divided by t
+    E_up_t = E_up / t
+    E_dn_t = E_dn / t
+    
     # Plot energy spectrum
-    ax[0] = plot_E(ax[0], mode, E_up, E_dn, n_up, n_dn, limit=plot_E_limit)
+    ax[0] = plot_E(ax[0], mode, E_up_t, E_dn_t, n_up, n_dn, limit=plot_E_limit)
 
     # Plot density of states
-    ax[1] = plot_dos(ax[1], mode, E_up, E_dn, kde_sigma=dos_kde_sigma)
+    ax[1] = plot_dos(ax[1], mode, E_up_t, E_dn_t, kde_sigma=dos_kde_sigma)
     
     # Calculate lattice network (connect the lattice points with lines)
     lattice_net, node_positions = lattice_network(pos, ind_NN)
@@ -245,17 +263,25 @@ def plot_summary(
         + 'n\_elec = %i' %(n_up + n_dn) \
         + '\nn\_up = %i, ' %n_up \
         + 'n\_dn = %i, ' %n_dn \
-        + 'Sz = %.2f' %(0.5 * (n_up - n_dn))
-    ax_info.text(0.5, 1.071, info_str, ha='center', fontsize=6)  
+        + 'Sz = %.2f' %(0.5 * (n_up - n_dn)) \
+        + '\n$a$ = %.5e (%.5f %s)' %(a, a_nau, lunit)
+    info_str = info_str.replace('e-', '$e-$').replace('e+', '$e+$')
+    ax_info.text(0.51, 1.115, info_str, ha='center', va='top', fontsize=5.25)
     
-    info_str = '$t = %.5e$\n' %t + '$tp = %.5e$' %tp  
-    ax_info.text(0, 1.071, info_str, ha='left', fontsize=6)  
-    
+    info_str = '$t$ = %.5e (%.5f %s)\n' %(t, t_nau, eunit) \
+        + '$tp$ = %.5e (%.5f %s)' %(tp, tp_nau, eunit)
     if mode == 'mfh':
-        info_str = '$U = %.5f t$ ($%.5e$)\n' %(U / t, U) \
-            + 'U\_long\_range = %s' %U_long_range
-        ax_info.text(1.00, 1.071, info_str, ha='right', fontsize=6)
+        info_str += '\n$U$ = %.5e (%.5f %s)\n' %(U, U_nau, eunit) \
+            + '$U / t$ = %.5f' %(U / t)
+    info_str = info_str.replace('e-', '$e-$').replace('e+', '$e+$')
+    ax_info.text(0.0, 1.115, info_str, ha='left', va='top', fontsize=5.25)
     
+    info_str = 'E\_total = %.15f\n' %E_total \
+        + '(%.15f %s)' %(E_total_nau, eunit)
+    if mode == 'mfh':
+        info_str += '\n\nU\_long\_range = %s\n' %U_long_range \
+            + 'U1\_U2\_scaling = %s' %U1_U2_scaling
+    ax_info.text(1.0, 1.115, info_str, ha='right', va='top', fontsize=5.25)
     
     # Add padding between subplots
     fig.tight_layout()
@@ -306,7 +332,7 @@ def plot_E(ax, mode, E_up, E_dn, n_up, n_dn, limit=None):
     #ax.xaxis.set_major_locator(LinearLocator(6))
     ax.tick_params(labelsize=5.5)
     ax.set_xlabel('Energy index (zero-based)', fontsize=6.5)
-    ax.set_ylabel('Energy', fontsize=6.5)
+    ax.set_ylabel('Energy / $t$', fontsize=6.5)
     
     # PLot figure
     x = range(E_up.shape[0])
@@ -356,7 +382,7 @@ def plot_dos(ax, mode, E_up, E_dn, kde_sigma=None):
     #ax.yaxis.set_major_locator(LinearLocator(5))
     #ax.yaxis.set_major_locator(FixedLocator([0, 0.25, 0.5, 0.75, 1]))
     ax.tick_params(labelsize=5.5)
-    ax.set_xlabel('Energy', fontsize=6.5)
+    ax.set_xlabel('Energy / $t$', fontsize=6.5)
     ax.set_ylabel('Density of States', fontsize=6.5)
     
     # Plot figure

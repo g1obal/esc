@@ -4,7 +4,7 @@ Mean-field Hubbard
 
 Author: Gokhan Oztarhan
 Created date: 29/08/2019
-Last modified: 10/01/2023
+Last modified: 04/03/2023
 """
 
 import logging
@@ -35,6 +35,10 @@ def mfh(
     
     # Initialize E_total to infinity to skip first step
     E_total = np.inf
+    
+    # Print info header
+    logger.info('%5s  %12s  %22s  %21s\n' \
+        %('iter', 'eigh_time(s)', 'E_total', 'delta_E'))
 
     # Self-consistent loop
     for i in range(iter_lim):
@@ -54,7 +58,6 @@ def mfh(
         E_up, V_up = eigh(Hmfh_up)
         E_dn, V_dn = eigh(Hmfh_dn)       
         toc = time.time()
-        logger.info('Iter %i: eigh done. (%.3f s)\n' %(i, toc-tic))
          
         # Calculate the density matrices
         rho_up = V_up[:,:n_up] @ V_up[:,:n_up].conj().T
@@ -74,10 +77,10 @@ def mfh(
             n_ave = (n_ave_up_new + n_ave_dn_new - 1)[:,None]
             E_total += 0.5 * n_ave.conj().T @ U_LR @ n_ave
         
-        delta_E = np.absolute(E_total - E_total_old)
+        delta_E = np.abs(E_total - E_total_old)
 
-        logger.info('E_total = %.15f eV\n' %(E_total) \
-            + 'delta_E = %.15f (%.1e)\n\n' %(delta_E, delta_E))
+        logger.info('%5i  %.6e  % .15e  %.15e\n' \
+            %(i, toc - tic, E_total, delta_E))
         
         if delta_E < delta_E_lim:
             break
@@ -88,9 +91,9 @@ def mfh(
     
     # Print info
     toc_mfh = time.time()
-    logger.info('Total number of iterations = %i\n' %(i + 1) \
+    logger.info('\nTotal number of iterations = %i\n' %(i + 1) \
         + 'mfh done. (%.3f s)\n\n' %(toc_mfh - tic_mfh))
-         
+    
     return Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn, E_total
     
 

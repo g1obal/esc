@@ -3,7 +3,7 @@ Hamiltonian Generator
 
 Author: Gokhan Oztarhan
 Created date: 20/07/2019
-Last modified: 09/01/2023
+Last modified: 02/03/2023
 """
 
 import time
@@ -43,7 +43,7 @@ def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_site):
     
     toc = time.time()
 
-    string = 'Htb is generated, %.1fMB. (%.3f s)\n\n' %(memory_usage_H, toc-tic)
+    string = 'Htb generated, %.3f MB. (%.3f s)\n\n' %(memory_usage_H, toc-tic)
     logger.info(string)
     
     return H

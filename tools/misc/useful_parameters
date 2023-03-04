@@ -1,0 +1,11 @@
+For graphene [1]:
+t = 2.8 eV
+U = 16.522 eV
+a = 1.42 A
+See reference [1] for tp, m_r and kappa.
+
+For GaAs:
+m_r = 0.067
+kappa = 12.4
+
+[1] https://doi.org/10.1007/978-3-662-44611-9.

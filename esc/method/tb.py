@@ -4,7 +4,7 @@ Tight-binding
 
 Author: Gokhan Oztarhan
 Created date: 29/08/2019
-Last modified: 10/01/2023
+Last modified: 02/03/2023
 """
 
 import time
@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 def tb(Htb, n_up, n_dn):
     """Tight-binding"""
+    tic_tb = time.time()
+    
     # Eigenvalues and eigenvectors
     tic = time.time()
     E, V = eigh(Htb)
@@ -33,7 +35,11 @@ def tb(Htb, n_up, n_dn):
     
     # Total energy 
     E_total = np.trace((rho_up + rho_dn) @ Htb)
-    logger.info('E_total = %.15f eV\n\n' %(E_total))
+    
+    # Print info
+    toc_tb = time.time()
+    logger.info('E_total = %.15e\n\n' %E_total \
+        + 'tb done. (%.3f s)\n\n' %(toc_tb - tic_tb))
             
     return E, V, E_total
 

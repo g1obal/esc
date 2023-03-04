@@ -3,7 +3,7 @@ Electronic Structure Calculator
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 12/01/2023
+Last modified: 04/03/2023
 """
 
 import logging
@@ -11,6 +11,6 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = '5.1.0'
+__version__ = '6.0.0'
 
 
