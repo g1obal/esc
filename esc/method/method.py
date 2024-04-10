@@ -13,7 +13,7 @@ Hamiltonians are real symmetric matrices. Otherwise, use numpy.eig() function.
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 02/03/2023
+Last modified: 02/04/2024
 """
 
 import logging
@@ -42,6 +42,7 @@ V_up = None
 V_dn = None
 E_total = None
 E_total_nau = None
+p_edge_pol = None
 
 
 def init():
@@ -49,6 +50,7 @@ def init():
     global Htb, E, V
     global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn
     global E_total, E_total_nau
+    global p_edge_pol
 
     # Reset variables
     start = None
@@ -64,6 +66,7 @@ def init():
     V_dn = None
     E_total = None
     E_total_nau = None
+    p_edge_pol = None
 
     # Print initialization info
     logger.info('[method]\n--------\n')
@@ -84,7 +87,7 @@ def init():
             
             
 def _method_tb():
-    global E, V, E_total, E_total_nau
+    global E, V, E_total, E_total_nau, p_edge_pol
     
     # Diagonalization of the tight-binding Hamiltonian
     E, V, E_total = tb(Htb, cfg.n_up, cfg.n_dn)
@@ -95,10 +98,15 @@ def _method_tb():
     
     logger.info('E_total = %.15f\n' %E_total \
         + 'E_total_nau = %.15f %s\n\n' %(E_total_nau, cfg.eunit))
+        
+    # Edge polarization
+    p_edge_pol = _edge_pol(V, V)
+    logger.info('p_edge_pol = %.15f\n\n' %p_edge_pol)
 
 
 def _method_mfh():
     global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn, E_total, E_total_nau
+    global p_edge_pol
     
     # Initialize trial electron densities
     n_ave_up, n_ave_dn = init_mfh_density(
@@ -119,6 +127,10 @@ def _method_mfh():
     
     logger.info('E_total = %.15f\n' %E_total \
         + 'E_total_nau = %.15f %s\n\n' %(E_total_nau, cfg.eunit))
+        
+    # Edge polarization
+    p_edge_pol = _edge_pol(V_up, V_dn)
+    logger.info('p_edge_pol = %.15f\n\n' %p_edge_pol)
 
             
 def _orb_coef_tb():
@@ -134,4 +146,45 @@ def _orb_coef_mfh():
     coef_dn = V_dn[:,:cfg.n_dn].T
     return np.vstack([coef_up, coef_dn])
 
-     
+
+def _edge_pol(V_up, V_dn, include_corners=False):
+    """
+    Edge Polarization
+    p = (<|s_edge|> - <|s_bulk|>) / (<|s_edge|> + <|s_bulk|>)
+    where bulk is the interior lattice points.
+    
+    p =  1 : all total spin are polarized at the edges
+    p =  0 : no polarization at the edges
+    p = -1 : all total spin are polarized at the bulk
+    """
+    # Calculate spin densities
+    probs = np.conj(V_up) * V_up # there is no transpose since this is psi^2
+    n_ave_up = probs[:,:cfg.n_up].sum(axis=1)
+    
+    probs = np.conj(V_dn) * V_dn # there is no transpose since this is psi^2
+    n_ave_dn = probs[:,:cfg.n_dn].sum(axis=1)
+    
+    spins = n_ave_up - n_ave_dn
+
+    # Find edge and bulk indices
+    ind, count = np.unique(cfg.ind_NN.flatten(), return_counts=True)
+    ind_edge = ind[count < 3]
+    ind_bulk = ind[count > 2]
+    
+    # Drop corner sites from edge indices for triangular zigzag flake
+    if not include_corners:
+        dist = np.sqrt((cfg.pos[ind_edge,:]**2).sum(axis=1))
+        ind_edge = ind_edge[dist < dist.max() - cfg.a / 8]
+    
+    # <|s_edge|>
+    s_edge = np.abs(spins[ind_edge]).mean()
+
+    # <|s_bulk|>
+    s_bulk = np.abs(spins[ind_bulk]).mean()
+    
+    # Edge polarization
+    p_edge_pol = (s_edge - s_bulk) / (s_edge + s_bulk)
+    
+    return p_edge_pol
+
+

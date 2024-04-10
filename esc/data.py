@@ -3,7 +3,7 @@ Data module
 
 Author: Gokhan Oztarhan
 Created date: 11/12/2021
-Last modified: 02/03/2023
+Last modified: 02/04/2024
 """
 
 import os
@@ -52,6 +52,7 @@ def save_data():
             'V': method.V,
             'E_total': method.E_total,
             'E_total_nau': method.E_total_nau,
+            'p_edge_pol': method.p_edge_pol,
         }
     elif cfg.mode == 'mfh':
         data_dict = {
@@ -96,6 +97,7 @@ def save_data():
             'V_dn': method.V_dn,
             'E_total': method.E_total,
             'E_total_nau': method.E_total_nau,
+            'p_edge_pol': method.p_edge_pol,
         }
   
     fname = os.path.join(cfg.root_dir, cfg.data_file)      
