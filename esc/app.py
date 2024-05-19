@@ -3,7 +3,7 @@ Electronic Structure Calculator
 
 Author: Gokhan Oztarhan
 Created date: 28/08/2019
-Last modified: 03/12/2022
+Last modified: 19/05/2024
 """
 
 import os
@@ -59,7 +59,7 @@ def run(config_dict):
     save_data() 
 
     # Plot figures
-    if cfg.verbose_plot:
+    if cfg.plot:
         plot()
      
     # Print end info

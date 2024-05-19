@@ -13,7 +13,7 @@ Hamiltonians are real symmetric matrices. Otherwise, use numpy.eig() function.
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 02/04/2024
+Last modified: 19/05/2024
 """
 
 import logging
@@ -135,16 +135,26 @@ def _method_mfh():
             
 def _orb_coef_tb():
     # rows: orbitals, columns: coefficients
-    coef_up = V[:,:cfg.n_up].T
-    coef_dn = V[:,:cfg.n_dn].T
-    return np.vstack([coef_up, coef_dn])
+    coef_up = V.T
+    coef_dn = V.T
+    if cfg.full_orb_coef:
+        return np.vstack([coef_up[:cfg.n_up,:], coef_dn[:cfg.n_dn,:]]), \
+            coef_up, coef_dn
+    else:
+        return np.vstack([coef_up[:cfg.n_up,:], coef_dn[:cfg.n_dn,:]]), \
+            None, None
 
 
 def _orb_coef_mfh():
     # rows: orbitals, columns: coefficients
-    coef_up = V_up[:,:cfg.n_up].T
-    coef_dn = V_dn[:,:cfg.n_dn].T
-    return np.vstack([coef_up, coef_dn])
+    coef_up = V_up.T
+    coef_dn = V_dn.T
+    if cfg.full_orb_coef:
+        return np.vstack([coef_up[:cfg.n_up,:], coef_dn[:cfg.n_dn,:]]), \
+            coef_up, coef_dn
+    else:
+        return np.vstack([coef_up[:cfg.n_up,:], coef_dn[:cfg.n_dn,:]]), \
+            None, None
 
 
 def _edge_pol(V_up, V_dn, include_corners=False):

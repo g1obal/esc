@@ -42,8 +42,6 @@ _INITIAL_DENSITY = {
 # [verbose]
 verbose_file = 1 
 verbose_console = 1
-verbose_orb_coef = 1
-verbose_plot = 1
 
 # [file]
 root_dir = 'outputs'
@@ -51,7 +49,7 @@ log_file = 'output'
 data_file = 'data.npz'
 
 # [mode]
-mode = 'mfh' # 'tb': tight-binding, 'mfh': mean-field Hubbard
+mode = 'tb' # 'tb': tight-binding, 'mfh': mean-field Hubbard
 
 # [units]
 m_r = 0.067 # effective electron mass ratio, m_eff / m_e
@@ -109,7 +107,12 @@ flk_type = 1 # 0: hexagonal_zigzag,
              # 3: triangular_armchair, 
              # 4: nanoribbon
 
+# [orb_coef]
+orb_coef = 1
+full_orb_coef = 0
+
 # [plotting]
+plot = 1
 n_up_start = 0
 n_up_end = None
 n_dn_start = 0
@@ -364,8 +367,6 @@ def parse_config_file(fname):
     # [verbose]
     parser.set_type('verbose', 'verbose_file', bool)
     parser.set_type('verbose', 'verbose_console', bool)
-    parser.set_type('verbose', 'verbose_orb_coef', bool)
-    parser.set_type('verbose', 'verbose_plot', bool)
     
     # [file]  
     parser.set_type('file', 'root_dir', str)
@@ -411,7 +412,12 @@ def parse_config_file(fname):
     parser.set_type('lattice', 'lat_type', str)
     parser.set_type('lattice', 'flk_type', int)
     
+    # [orb_coef]
+    parser.set_type('orb_coef', 'orb_coef', bool)
+    parser.set_type('orb_coef', 'full_orb_coef', bool)
+    
     # [plotting]
+    parser.set_type('plotting', 'plot', bool)
     parser.set_type('plotting', 'n_up_start', int)
     parser.set_type('plotting', 'n_up_end', int, can_be_None=True)
     parser.set_type('plotting', 'n_dn_start', int)

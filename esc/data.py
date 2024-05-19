@@ -3,7 +3,7 @@ Data module
 
 Author: Gokhan Oztarhan
 Created date: 11/12/2021
-Last modified: 02/04/2024
+Last modified: 19/05/2024
 """
 
 import os
@@ -112,13 +112,25 @@ def save_data():
     logger.info('Data saved: %s\n' %fname)
     
     # Write orbital coefficients
-    if cfg.verbose_orb_coef:  
+    if cfg.orb_coef:
+        coef, coef_up, coef_dn = method.orb_coef()
         fname = os.path.join(cfg.root_dir, 'orb_dot_coef')
         np.savetxt(
-            fname, method.orb_coef(), 
+            fname, coef,
             fmt='% .12f', delimiter=' ', newline='\n'
         )
-        logger.info('Orbital coefficients generated: %s\n' %fname)
+        if cfg.full_orb_coef:
+            fname = os.path.join(cfg.root_dir, 'orb_dot_coef_up')
+            np.savetxt(
+                fname, coef_up,
+                fmt='% .12f', delimiter=' ', newline='\n'
+            )
+            fname = os.path.join(cfg.root_dir, 'orb_dot_coef_dn')
+            np.savetxt(
+                fname, coef_dn,
+                fmt='% .12f', delimiter=' ', newline='\n'
+            )
+        logger.info('Orbital coefficients generated.\n')
     
     toc = time.time()
     logger.info('save_data done. (%.3f s)\n\n' %(toc - tic))
