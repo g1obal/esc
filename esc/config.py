@@ -7,7 +7,7 @@ this module works similar to a singleton.
 
 Author: Gokhan Oztarhan
 Created date: 06/03/2021
-Last modified: 04/03/2023
+Last modified: 19/05/2024
 """
 
 from copy import deepcopy
@@ -110,10 +110,15 @@ flk_type = 1 # 0: hexagonal_zigzag,
              # 4: nanoribbon
 
 # [plotting]
+n_up_start = 0
+n_up_end = None
+n_dn_start = 0
+n_dn_end = None
 plot_E_limit = None
 dos_kde_sigma = None
 psi2_kde_sigma = None
-mesh_resolution = 500        
+mesh_resolution = 500    
+plot_fname = 'summary'    
 plot_dpi = 600
 plot_format = 'jpg'
 
@@ -152,6 +157,7 @@ def set():
     global n_site, n_elec, n_up, n_dn, ind_up, ind_dn
     global pos, ind_NN, ind_NN_2nd, Sz_calc
     global random_seed, random_seed_auto_set
+    global n_up_start, n_up_end, n_dn_start, n_dn_end
     
     # Copy input values to the variables with _nau suffix; 
     # nau means non-atomic-units (SI units or common units such as eV).
@@ -266,7 +272,13 @@ def set():
             random_seed_auto_set = False
         np.random.seed(random_seed)
 
-        
+    # Set default values of n_up_end and n_dn_end
+    if n_up_end is None:
+        n_up_end = n_up
+    if n_dn_end is None:
+        n_dn_end = n_dn
+
+       
 def print_info():
     logger.info('\n[config]\n--------\n')
     
@@ -400,10 +412,15 @@ def parse_config_file(fname):
     parser.set_type('lattice', 'flk_type', int)
     
     # [plotting]
+    parser.set_type('plotting', 'n_up_start', int)
+    parser.set_type('plotting', 'n_up_end', int, can_be_None=True)
+    parser.set_type('plotting', 'n_dn_start', int)
+    parser.set_type('plotting', 'n_dn_end', int, can_be_None=True)
     parser.set_type('plotting', 'plot_E_limit', float, can_be_None=True)
     parser.set_type('plotting', 'dos_kde_sigma', float, can_be_None=True)
     parser.set_type('plotting', 'psi2_kde_sigma', float, can_be_None=True)
     parser.set_type('plotting', 'mesh_resolution', int)
+    parser.set_type('plotting', 'plot_fname', str)
     parser.set_type('plotting', 'plot_dpi', int)
     parser.set_type('plotting', 'plot_format', str)
    

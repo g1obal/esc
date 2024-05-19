@@ -3,7 +3,7 @@ Figure plotting module
 
 Author: Gokhan Oztarhan
 Created date: 24/07/2019
-Last modified: 04/03/2023
+Last modified: 19/05/2024
 """
 
 import os
@@ -47,14 +47,15 @@ def plot():
     plot_summary(
         cfg.mode, cfg.eunit, cfg.lunit,
         E_up, E_dn, cfg.n_up, cfg.n_dn, 
-        cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, V_up, V_dn, 0,
+        cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, V_up, V_dn,
+        cfg.n_up_start, cfg.n_up_end, cfg.n_dn_start, cfg.n_dn_end,
         cfg.t, cfg.t_nau, cfg.tp, cfg.tp_nau, 
         cfg.U, cfg.U_nau, cfg.U_long_range, cfg.U1_U2_scaling,
         method.E_total, method.E_total_nau,
         cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution,
-        dpi=cfg.plot_dpi, _format=cfg.plot_format
+        fname=cfg.plot_fname, dpi=cfg.plot_dpi, _format=cfg.plot_format
     )
    
                    
@@ -78,14 +79,15 @@ def replot(data):
     plot_summary(
         data['mode'], data['eunit'], data['lunit'],
         E_up, E_dn, data['n_up'], data['n_dn'], 
-        data['a'], data['a_nau'], data['pos'], data['ind_NN'], V_up, V_dn, 0,
+        data['a'], data['a_nau'], data['pos'], data['ind_NN'], V_up, V_dn, 
+        cfg.n_up_start, cfg.n_up_end, cfg.n_dn_start, cfg.n_dn_end,
         data['t'], data['t_nau'], data['tp'], data['tp_nau'], 
         U, U_nau, U_long_range, U1_U2_scaling,
         data['E_total'], data['E_total_nau'],
         cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution, 
-        dpi=cfg.plot_dpi, _format=cfg.plot_format
+        fname=cfg.plot_fname, dpi=cfg.plot_dpi, _format=cfg.plot_format
     )
 
 #------------------------------------------------------------------------------
@@ -145,7 +147,9 @@ def lattice_network(pos, ind_NN):
 #------------------------------------------------------------------------------  
 
 def electron_densities(
-    a, pos, V_up, V_dn, n_start, n_up, n_dn, kde_sigma, mesh_resolution
+    a, pos, V_up, V_dn, 
+    n_up_start, n_up_end, n_dn_start, n_dn_end,
+    kde_sigma, mesh_resolution
 ):
     tic = time.time()
     
@@ -167,12 +171,12 @@ def electron_densities(
 
     # Up electrons
     probs = np.conj(V_up) * V_up # there is no transpose since this is psi^2
-    weight = probs[:,n_start:n_up].sum(axis=1)
+    weight = probs[:,n_up_start:n_up_end].sum(axis=1)
     zz_up = kde_2d(pos, weight, x, y, kde_sigma)
     
     # Down electrons
     probs = np.conj(V_dn) * V_dn # there is no transpose since this is psi^2
-    weight = probs[:,n_start:n_dn].sum(axis=1)
+    weight = probs[:,n_dn_start:n_dn_end].sum(axis=1)
     zz_dn = kde_2d(pos, weight, x, y, kde_sigma)
     
     toc = time.time()
@@ -184,12 +188,13 @@ def electron_densities(
 
 def plot_summary(
     mode, eunit, lunit, E_up, E_dn, n_up, n_dn, 
-    a, a_nau, pos, ind_NN, V_up, V_dn, n_start,
+    a, a_nau, pos, ind_NN, V_up, V_dn,
+    n_up_start, n_up_end, n_dn_start, n_dn_end,
     t, t_nau, tp, tp_nau, U, U_nau, U_long_range,
     U1_U2_scaling, E_total, E_total_nau,
     root_dir, plot_E_limit=None, 
-    dos_kde_sigma=None, psi2_kde_sigma=None, 
-    mesh_resolution=500, dpi=600, _format='jpg'
+    dos_kde_sigma=None, psi2_kde_sigma=None, mesh_resolution=500,
+    fname='summary', dpi=600, _format='jpg'
 ):
     tic_all = time.time()
     
@@ -232,7 +237,8 @@ def plot_summary(
     
     # Calculate electron densities
     xlim, ylim, xx, yy, zz_up, zz_dn = electron_densities(
-        a, pos, V_up, V_dn, n_start, n_up, n_dn, 
+        a, pos, V_up, V_dn,
+        n_up_start, n_up_end, n_dn_start, n_dn_end, 
         psi2_kde_sigma, mesh_resolution
     )
     
@@ -288,7 +294,7 @@ def plot_summary(
     #plt.subplots_adjust(wspace=0.4, hspace=0.25)
     
     # Save figure
-    fname = os.path.join(root_dir, 'summary') + '.' + _format
+    fname = os.path.join(root_dir, fname) + '.' + _format
     fig.savefig(fname, dpi=dpi, format=_format, bbox_inches='tight') 
     plt.close(fig)
     
