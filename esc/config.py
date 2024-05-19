@@ -107,6 +107,10 @@ flk_type = 1 # 0: hexagonal_zigzag,
              # 3: triangular_armchair, 
              # 4: nanoribbon
 
+# [eigenstates]
+overlap_eigstates = 1
+overlap_threshold = 1e-10
+
 # [orb_coef]
 orb_coef = 1
 full_orb_coef = 0
@@ -411,6 +415,10 @@ def parse_config_file(fname):
     parser.set_type('lattice', 'bc', str)
     parser.set_type('lattice', 'lat_type', str)
     parser.set_type('lattice', 'flk_type', int)
+    
+    # [eigenstates]
+    parser.set_type('eigenstates', 'overlap_eigstates', bool)
+    parser.set_type('eigenstates', 'overlap_threshold', float)
     
     # [orb_coef]
     parser.set_type('orb_coef', 'orb_coef', bool)

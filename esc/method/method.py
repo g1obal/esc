@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 start = None
 orb_coef = None
+overlap_eigstates = None
 Htb = None
 E = None
 V = None
@@ -46,7 +47,7 @@ p_edge_pol = None
 
 
 def init():
-    global start, orb_coef
+    global start, orb_coef, overlap_eigstates
     global Htb, E, V
     global Hmfh_up, Hmfh_dn, E_up, E_dn, V_up, V_dn
     global E_total, E_total_nau
@@ -80,10 +81,12 @@ def init():
     if cfg.mode == 'tb':
         start = _method_tb
         orb_coef = _orb_coef_tb
+        overlap_eigstates = _overlap_eigstates_tb
 
     elif cfg.mode == 'mfh':
         start = _method_mfh
         orb_coef = _orb_coef_mfh
+        overlap_eigstates = _overlap_eigstates_mfh
             
             
 def _method_tb():
@@ -132,7 +135,27 @@ def _method_mfh():
     p_edge_pol = _edge_pol(V_up, V_dn)
     logger.info('p_edge_pol = %.15f\n\n' %p_edge_pol)
 
-            
+
+def _overlap_eigstates_tb():
+    prod = V @ V.T
+    ind = np.array(np.where(np.abs(prod) > cfg.overlap_threshold)).T
+    overlap = np.hstack([ind, prod[ind[:,0],ind[:,1]][:,None]])
+    
+    return overlap, overlap
+    
+    
+def _overlap_eigstates_mfh():
+    prod = V_up @ V_up.T
+    ind = np.array(np.where(np.abs(prod) > cfg.overlap_threshold)).T
+    overlap_up = np.hstack([ind, prod[ind[:,0],ind[:,1]][:,None]])
+    
+    prod = V_dn @ V_dn.T
+    ind = np.array(np.where(np.abs(prod) > cfg.overlap_threshold)).T
+    overlap_dn = np.hstack([ind, prod[ind[:,0],ind[:,1]][:,None]])
+    
+    return overlap_up, overlap_dn
+
+
 def _orb_coef_tb():
     # rows: orbitals, columns: coefficients
     coef_up = V.T

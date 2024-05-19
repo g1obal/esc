@@ -111,6 +111,37 @@ def save_data():
     np.savez_compressed(fname, **data_dict)
     logger.info('Data saved: %s\n' %fname)
     
+    # Write non-perpendicular eigenstates
+    if cfg.overlap_eigstates:
+        overlap_up, overlap_dn = method.overlap_eigstates()
+        fname = os.path.join(cfg.root_dir, 'overlap_up')
+        np.savetxt(
+            fname, overlap_up,
+            fmt=['  %3i', '%3i', '% .10e'], delimiter=' ', newline='\n',
+            comments='# ', header='%3s %3s %17s' %('i', 'j', 'overlap')
+        )
+        fname = os.path.join(cfg.root_dir, 'overlap_dn')
+        np.savetxt(
+            fname, overlap_dn,
+            fmt=['  %3i', '%3i', '% .10e'], delimiter=' ', newline='\n',
+            comments='# ', header='%3s %3s %17s' %('i', 'j', 'overlap')
+        )
+        
+        if overlap_up.size < cfg.n_elec or overlap_dn.size < cfg.n_elec:
+            logger.info('Eigenstate overlaps generated, ' \
+                'the number of non-zero overlaps is less than n_elec.\n' \
+                'CHECK OVERLAP FILES!\n')
+        else:
+            checker_up = all(overlap_up[:,0] == overlap_up[:,1])
+            checker_dn = all(overlap_dn[:,0] == overlap_dn[:,1])
+            if checker_up and checker_dn:
+                logger.info('Eigenstate overlaps generated, ' \
+                    'only diagonal non-zero overlaps found.\n')
+            else:
+                logger.info('Eigenstate overlaps generated, ' \
+                    'non-diagonal non-zero overlaps found.\n' \
+                    'CHECK OVERLAP FILES!\n')
+    
     # Write orbital coefficients
     if cfg.orb_coef:
         coef, coef_up, coef_dn = method.orb_coef()
