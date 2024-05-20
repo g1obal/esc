@@ -90,7 +90,7 @@ examples.
 
 For more information about usage:
 ```
-$ python3 esc_run --help
+$ python3 esc_run.py --help
 ```
 
 ## Contact
