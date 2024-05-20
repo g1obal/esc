@@ -1,13 +1,9 @@
 """
-Config Module
-
-Defines global variables shared across the program.
-Since python modules are imported "only once",
-this module works similar to a singleton.
+Config
 
 Author: Gokhan Oztarhan
 Created date: 06/03/2021
-Last modified: 19/05/2024
+Last modified: 20/05/2024
 """
 
 from copy import deepcopy

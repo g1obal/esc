@@ -20,7 +20,7 @@ import matplotlib.gridspec as gridspec
 import networkx
 
 from . import config as cfg
-from .method import method
+from . import method
 
 
 logger = logging.getLogger(__name__)

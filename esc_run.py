@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""
+Electronic Structure Calculator
+
+Run script without installation
+
+Author: Gokhan Oztarhan
+Created date: 19/05/2024
+Last modified: 20/05/2024
+"""
+
+from esc.main import main
+
+
+if __name__ == '__main__':
+    main()

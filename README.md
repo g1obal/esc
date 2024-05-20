@@ -74,25 +74,23 @@ $ pip install .
 ```
 
 ## Usage
-Usage is same with or without installation. 
+Usage if installed:
 ```
-$ python3 -m esc
+$ esc_run
+```
+
+Usage without installation:
+```
+$ python3 esc_run.py
 ```
 
 The program requires an input file to set configurations (e.g. lattice geometry,
-run mode or Hamiltonian parameters). Running the program without an input file
-generates an example input file with variable descriptions at the bottom.
-
-If the program should be used from another directory *without installation*,
-PYTHONPATH environment variable have to be modified.
-```
-$ export PYTHONPATH="$PYTHONPATH:/path/to/this/repository/"
-$ python3 -m esc
-```
+run mode or Hamiltonian parameters). See *examples* directory for input file
+examples.
 
 For more information about usage:
 ```
-$ python3 -m esc --help
+$ python3 esc_run --help
 ```
 
 ## Contact

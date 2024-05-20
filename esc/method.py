@@ -20,8 +20,8 @@ import logging
 
 import numpy as np
 
-from .. import config as cfg
-from ..auconverter import AUConverter
+from . import config as cfg
+from .auconverter import AUConverter
 from .hamiltonian import hamiltonian_tb
 from .tb import tb
 from .mfh import init_mfh_density, mfh

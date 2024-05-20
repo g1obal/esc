@@ -4,14 +4,17 @@ Electronic Structure Calculator
 Author: Gokhan Oztarhan
 esc created date: 28/08/2019
 Setup module created date: 28/12/2021
-Setup module last modified: 05/12/2022
+Setup module last modified: 20/05/2024
 """
 
 from distutils.core import setup
 import re
 
-from esc import __version__
 
+# Parse version number.
+with open('esc/__init__.py', 'r') as f:
+    __version__ = [line.split('=')[-1].strip().replace("'",'') \
+        for line in f.readlines() if '__version__' in line][0]
 
 # Parse long_description.
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -43,18 +46,13 @@ setup(
     ],
     packages = [
         'esc', 
-        'esc.latgen', 
-        'esc.method', 
-        'esc.resources',
+        'esc.latgen',
     ],
     package_dir = {
         'esc': 'esc', 
         'esc.latgen': 'esc/latgen',
-        'esc.method': 'esc/method', 
-        'esc.resources': 'esc/resources',
     },
-    package_data = {'esc.resources': ['input-default.ini']},
-    include_package_data = True,
+    scripts = ['scripts/esc_run'],
     install_requires = requirements,
 )
 

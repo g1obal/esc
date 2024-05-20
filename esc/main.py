@@ -1,24 +1,42 @@
 """
 Electronic Structure Calculator
 
+Main module
+
 Author: Gokhan Oztarhan
 Created date: 28/08/2019
-Last modified: 19/05/2024
+Last modified: 20/05/2024
 """
 
 import os
 import time
 import datetime
 import logging
+import argparse
 
+from .__init__ import __version__
 from . import config as cfg
-from .method import method
+from .import method
 from .logger import set_logger, unset_logger
 from .data import save_data, reload_data
 from .plotting import plot, replot
 
 
 logger = logging.getLogger(__name__)
+
+
+def main():
+    # Parse command line arguments
+    args = parse_args()
+
+    # Parse config file
+    config_dict = cfg.parse_config_file(args.input_file)
+
+    # Run esc or replot data
+    if 'replot' in args:
+        run_replot(config_dict)
+    else:
+        run(config_dict)
 
 
 def run(config_dict):    
@@ -96,4 +114,26 @@ def run_replot(config_dict):
     # Close all handlers of logger
     unset_logger()   
     
+
+def parse_args():
+    """Parse command line arguments"""
+    prog = 'esc'
+    description = 'Electronic Structure Calculator'
+    version = '%(prog)s ' + __version__
+    parser = argparse.ArgumentParser(
+        prog=prog, description=description,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        '-i', '--input-file', dest='input_file', type=str,
+        required=True, help='input file name'
+    )
+    parser.add_argument(
+        '--replot',  action='store_true', default=argparse.SUPPRESS,
+        help='replot figures using existing data'
+    )
+    parser.add_argument('--version', action='version', version=version) 
+
+    return parser.parse_args()
+
 

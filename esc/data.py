@@ -14,7 +14,7 @@ import time
 import numpy as np
 
 from . import config as cfg
-from .method import method
+from . import method
 
 
 logger = logging.getLogger(__name__)
