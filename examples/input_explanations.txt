@@ -1,0 +1,51 @@
+mode: run mode of the program
+    tb: tight-binding, 
+    mfh: mean-field Hubbard
+
+m_r: effective electron mass ratio, m_eff / m_e
+kappa: dielectric constant, varepsilon / varepsilon_0
+eunit: energy units
+lunit: length units
+
+t: tight-binding hopping parameter, 
+    tb Hamiltonian form:
+    Htb = -t \sum_{<i,j>,\sigma} c_{i \sigma}^{\dagger} c_{j \sigma}
+tp: 2nd nearest neighbor hopping parameter
+
+U: mean-field Hubbard U
+U1, U2, U3: 1st, 2nd and beyond 2nd nearest neighbor Coulomb interactions 
+            set all to 0 (zero) to disable long range interactions
+            None for calculation using 1/|r-r'|
+U1_U2_scaling: calculate U1 and/or U2 from U using graphene parameters
+               if they are set to None, 0: disable, 1: enable
+mix_ratio: new density proportion
+delta_E_lim: energy difference threshold to end self consistent loop
+iter_lim: iteration limit
+initial_density: initial trial density 
+    0: tight-binding,
+    1: tight-binding + spin symmetry breaking,
+    2: spin_order,
+    3: random(integer),
+    4: random(float),
+    5: zero
+
+total_charge: set total number of electrons, n_elec
+              None or 0 for charge neutral system
+Sz: total spin; to calculate the number of up and down electrons
+    None to arrange n_up and n_dn according to Lieb's theorem
+spin_order: electrons are located in a spin order (for MFH init)
+    AFM: antiferromagnetic, 
+    FM: ferromagnetic
+spin_order_direction: the direction in which electrons are located
+    0: add electrons from outside to inside, 
+       additional electrons from inside to outside.
+    1: add electrons from inside to outside, 
+       additional electrons from outside to inside. 
+
+width, bc: for nanoribbon
+flk_type: flake geometry of the lattice,
+    0: hexagonal_zigzag, 
+    1: hexagonal_armchair, 
+    2: triangular_zigzag, 
+    3: triangular_armchair, 
+    4: nanoribbon

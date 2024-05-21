@@ -3,7 +3,7 @@ Figure plotting module
 
 Author: Gokhan Oztarhan
 Created date: 24/07/2019
-Last modified: 19/05/2024
+Last modified: 21/05/2024
 """
 
 import os
@@ -19,9 +19,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.gridspec as gridspec
 import networkx
 
-from . import config as cfg
-from . import method
-
 
 logger = logging.getLogger(__name__)
 logging.getLogger('numexpr').setLevel(logging.WARNING) # mute np.numexpr info
@@ -35,19 +32,11 @@ plt.rcParams.update({
 })
 
 
-def plot():
-    if cfg.mode == 'tb':
-        E_up, E_dn = method.E, method.E
-        V_up, V_dn = method.V, method.V
-        
-    elif cfg.mode == 'mfh':
-        E_up, E_dn = method.E_up, method.E_dn         
-        V_up, V_dn = method.V_up, method.V_dn
-        
+def plot(cfg, method):
     plot_summary(
         cfg.mode, cfg.eunit, cfg.lunit,
-        E_up, E_dn, cfg.n_up, cfg.n_dn, 
-        cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, V_up, V_dn,
+        method.E_up, method.E_dn, cfg.n_up, cfg.n_dn, 
+        cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, method.V_up, method.V_dn,
         cfg.n_up_start, cfg.n_up_end, cfg.n_dn_start, cfg.n_dn_end,
         cfg.t, cfg.t_nau, cfg.tp, cfg.tp_nau, 
         cfg.U, cfg.U_nau, cfg.U_long_range, cfg.U1_U2_scaling,
@@ -59,7 +48,7 @@ def plot():
     )
    
                    
-def replot(data):
+def replot(cfg, data):
     if data['mode'] == 'tb':
         E_up, E_dn = data['E'], data['E']
         V_up, V_dn = data['V'], data['V']

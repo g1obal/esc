@@ -5,7 +5,7 @@ Main module
 
 Author: Gokhan Oztarhan
 Created date: 28/08/2019
-Last modified: 20/05/2024
+Last modified: 21/05/2024
 """
 
 import os
@@ -13,10 +13,11 @@ import time
 import datetime
 import logging
 import argparse
+import json
 
 from .__init__ import __version__
-from . import config as cfg
-from .import method
+from .config import Config
+from .method import Method
 from .logger import set_logger, unset_logger
 from .data import save_data, reload_data
 from .plotting import plot, replot
@@ -30,7 +31,8 @@ def main():
     args = parse_args()
 
     # Parse config file
-    config_dict = cfg.parse_config_file(args.input_file)
+    with open(args.input_file, 'r') as f_input:
+        config_dict = json.load(f_input)
 
     # Run esc or replot data
     if 'replot' in args:
@@ -46,8 +48,8 @@ def run(config_dict):
     """
     tic = time.time()
     
-    # Update global variables of config
-    cfg.update(config_dict)
+    # Initialize config
+    cfg = Config(config_dict)
     
     # Initialize root dir of all outputs
     if not os.path.exists(cfg.root_dir):
@@ -63,22 +65,20 @@ def run(config_dict):
     logger.info('Electronic Structure Calculator\n' \
         + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S\n\n'))
 
-    # Set preferences
-    cfg.set()
-    
-    # Print cfg info
+    # Set preferences and print information
+    cfg.setup()
     cfg.print_info()
     
     # Initialize and start method
-    method.init()
+    method = Method(cfg)
     method.start()
 
     # Save data
-    save_data() 
+    save_data(cfg, method) 
 
     # Plot figures
     if cfg.plot:
-        plot()
+        plot(cfg, method)
      
     # Print end info
     toc = time.time()
@@ -92,8 +92,8 @@ def run_replot(config_dict):
     """Replot figures using existing data"""
     tic = time.time()
     
-    # Update global variables of config
-    cfg.update(config_dict)
+    # Initialize config
+    cfg = Config(config_dict)
     
     # Initialize logger for only printing to console
     set_logger(0, 1)
@@ -102,10 +102,10 @@ def run_replot(config_dict):
     logger.info('Electronic Structure Calculator: Replot Figures\n\n')   
     
     # Reload data
-    data = reload_data()
+    data = reload_data(cfg)
     
     # Replot figures
-    replot(data)
+    replot(cfg, data)
     
     # Print end info
     toc = time.time()

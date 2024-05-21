@@ -3,7 +3,7 @@ Data module
 
 Author: Gokhan Oztarhan
 Created date: 11/12/2021
-Last modified: 19/05/2024
+Last modified: 21/05/2024
 """
 
 import os
@@ -13,14 +13,11 @@ import time
 
 import numpy as np
 
-from . import config as cfg
-from . import method
-
 
 logger = logging.getLogger(__name__)
 
 
-def save_data():
+def save_data(cfg, method):
     tic = time.time()
     
     # Print info header
@@ -144,7 +141,8 @@ def save_data():
     
     # Write orbital coefficients
     if cfg.orb_coef:
-        coef, coef_up, coef_dn = method.orb_coef()
+        coef, coef_up, coef_dn = \
+            method.orb_coef(full_orb_coef=cfg.full_orb_coef)
         fname = os.path.join(cfg.root_dir, 'orb_dot_coef')
         np.savetxt(
             fname, coef,
@@ -167,7 +165,7 @@ def save_data():
     logger.info('save_data done. (%.3f s)\n\n' %(toc - tic))
 
                           
-def reload_data():
+def reload_data(cfg):
     tic = time.time()
     
     # Print info header

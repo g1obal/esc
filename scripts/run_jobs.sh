@@ -13,10 +13,10 @@
 #
 # Author: Gokhan Oztarhan
 # Created date: 03/12/2022
-# Last modified: 20/05/2024
+# Last modified: 21/05/2024
 
 ROOT_DIR="."
-INPUT_FILE_NAME="input.ini"
+INPUT_FILE_NAME="input.json"
 
 ESC_PATH="$HOME/path/to/esc"
 

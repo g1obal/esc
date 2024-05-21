@@ -9,7 +9,7 @@
 # Created date: 04/03/2023
 # Last modified: 04/03/2023
 
-INPUT_FILE_NAME="input.ini"
+INPUT_FILE_NAME="input.json"
 ROOT_DIR="."
 
 # Find directories including INPUT_FILE_NAME recursively.
@@ -27,9 +27,9 @@ for i in ${!paths[@]}; do
     
     echo $run_path
     
-    sed -i "2s/.*/verbose_file = 0/" $INPUT_FILE_NAME
-    sed -i "8s/.*/root_dir = ./" $INPUT_FILE_NAME
-    sed -i "32s/.*/delta_E_lim = 1e-15/" $INPUT_FILE_NAME
+    sed -i '2s/.*/"verbose_file": 0,/' $INPUT_FILE_NAME
+    sed -i '5s/.*/"root_dir": ".",/' $INPUT_FILE_NAME
+    sed -i '27s/.*/"delta_E_lim": 1e-15,/' $INPUT_FILE_NAME
     
     popd > /dev/null
 done

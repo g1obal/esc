@@ -1,0 +1,61 @@
+{
+"verbose_file": 1,
+"verbose_console": 1,
+
+"root_dir": "outputs",
+"log_file": "output",
+"data_file": "data.npz",
+
+"mode": "tb",
+
+"random_seed": null,
+
+"m_r": 0.067,
+"kappa": 12.4,
+"eunit": "meV",
+"lunit": "nm",
+
+"t": 1.0,
+"tp": 0.0,
+
+"U": 2.0,
+"U1": 0.0,
+"U2": 0.0,
+"U3": 0.0,
+"U1_U2_scaling": 0,
+"mix_ratio": 0.7,
+"delta_E_lim": 1e-13,
+"iter_lim": 1000,
+"initial_density": 2,
+
+"total_charge": null,
+"Sz": null,
+"spin_order": "AFM",
+"spin_order_direction": 1,
+
+"a": 50.0,
+"n_side": 4,
+"width": 1,
+"bc": "xy",
+"lat_type": "honeycomb",
+"flk_type": 1,
+
+"overlap_eigstates": 1,
+"overlap_threshold": 1e-10,
+
+"orb_coef": 1,
+"full_orb_coef": 0,
+
+"plot": 1,
+"n_up_start": 0,
+"n_up_end": null,
+"n_dn_start": 0,
+"n_dn_end": null,
+"plot_E_limit": null,
+"dos_kde_sigma": null,
+"psi2_kde_sigma": 0.2,
+"mesh_resolution": 500,
+"plot_fname": "summary",
+"plot_dpi": 600,
+"plot_format": "jpg"
+}
