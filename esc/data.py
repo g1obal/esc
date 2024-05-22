@@ -3,7 +3,7 @@ Data module
 
 Author: Gokhan Oztarhan
 Created date: 11/12/2021
-Last modified: 21/05/2024
+Last modified: 22/05/2024
 """
 
 import os
@@ -27,6 +27,7 @@ def save_data(cfg, method):
     if cfg.mode == 'tb':
         data_dict = {
             'mode': cfg.mode,
+            'random_seed': cfg.random_seed,
             'm_r': cfg.m_r,
             'kappa': cfg.kappa,
             'eunit': cfg.eunit,
@@ -40,6 +41,8 @@ def save_data(cfg, method):
             'tp': cfg.tp,
             't_nau': cfg.t_nau,
             'tp_nau': cfg.tp_nau,
+            'disturb_hamiltonian': cfg.disturb_hamiltonian,
+            'disturb_coef': cfg.disturb_coef,
             'total_charge': cfg.total_charge,
             'n_elec': cfg.n_elec,
             'n_up': cfg.n_up, 
@@ -54,6 +57,7 @@ def save_data(cfg, method):
     elif cfg.mode == 'mfh':
         data_dict = {
             'mode': cfg.mode,
+            'random_seed': cfg.random_seed,
             'm_r': cfg.m_r,
             'kappa': cfg.kappa,
             'eunit': cfg.eunit,
@@ -81,7 +85,8 @@ def save_data(cfg, method):
             'delta_E_lim': cfg.delta_E_lim,
             'iter_lim': cfg.iter_lim,
             'initial_density': cfg.initial_density,
-            'random_seed': cfg.random_seed,
+            'disturb_hamiltonian': cfg.disturb_hamiltonian,
+            'disturb_coef': cfg.disturb_coef,
             'total_charge': cfg.total_charge,
             'n_elec': cfg.n_elec,
             'n_up': cfg.n_up,

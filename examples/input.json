@@ -28,6 +28,9 @@
 "iter_lim": 1000,
 "initial_density": 2,
 
+"disturb_hamiltonian": 0,
+"disturb_coef": 1e-6,
+
 "total_charge": null,
 "Sz": null,
 "spin_order": "AFM",

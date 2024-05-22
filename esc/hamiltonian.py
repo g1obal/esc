@@ -3,7 +3,7 @@ Hamiltonian Generator
 
 Author: Gokhan Oztarhan
 Created date: 20/07/2019
-Last modified: 02/03/2023
+Last modified: 22/05/2024
 """
 
 import time
@@ -15,7 +15,9 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_site):
+def hamiltonian_tb(
+    t, tp, ind_NN, ind_NN_2nd, n_site, disturb_hamiltonian, disturb_coef
+):
     """
     Generates tight-binding hamiltonian matrix.
     
@@ -38,6 +40,9 @@ def hamiltonian_tb(t, tp, ind_NN, ind_NN_2nd, n_site):
     if tp != 0:
         H[ind_NN_2nd[:,0],ind_NN_2nd[:,1]] = -tp
         H[ind_NN_2nd[:,1],ind_NN_2nd[:,0]] = -tp
+    
+    if disturb_hamiltonian:
+        H.ravel()[::H.shape[1]+1] += np.random.rand(n_site) * t * disturb_coef
     
     memory_usage_H = H.nbytes / 1024 / 1024
     

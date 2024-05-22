@@ -28,6 +28,9 @@ initial_density: initial trial density
     3: random(integer),
     4: random(float),
     5: zero
+    
+disturb_hamiltonian: 0 or 1 to disable/enable
+disturb_coef: Add random * t * disturb_coef to diagonal elements of hamiltonian
 
 total_charge: set total number of electrons, n_elec
               None or 0 for charge neutral system

@@ -3,7 +3,7 @@ Config
 
 Author: Gokhan Oztarhan
 Created date: 06/03/2021
-Last modified: 21/05/2024
+Last modified: 22/05/2024
 """
 
 from copy import deepcopy
@@ -86,6 +86,10 @@ class Config():
                                 # 3: random(integer), 
                                 # 4: random(float),
                                 # 5: zero
+                                
+        self.disturb_hamiltonian = bool(self.disturb_hamiltonian)
+        self.disturb_coef = float(self.disturb_coef) 
+             # Add random * t * disturb_coef to diagonal elements of hamiltonian
         
         self.total_charge = _type_or_None(int, self.total_charge) 
                             # set total number of electrons, n_elec
@@ -267,24 +271,26 @@ class Config():
         
         if self.mode == 'tb':
             string = 'mode = %s\n\n' %self.mode \
-                   + random_seed_line + '\n\n' \
-                   + 'm_r = %.5e\n' %self.m_r \
-                   + 'kappa = %.5e\n\n' %self.kappa \
-                   + 't = %.5e, t_nau = %.5e %s\n' \
-                    %(self.t, self.t_nau, self.eunit) \
-                   + 'tp = %.5e, tp_nau = %.5e %s\n\n' \
-                    %(self.tp, self.tp_nau, self.eunit) \
-                   + 'a = %.5e, a_nau = %.5e %s\n\n' \
-                    %(self.a, self.a_nau, self.lunit) \
-                   + 'total_charge = %s\n' %self.total_charge \
-                   + 'Sz = %-6s\n' %self.Sz \
-                   + 'spin_order = %s\n' %self.spin_order \
-                   + 'spin_order_direction = %s\n\n' \
-                    %self.spin_order_direction \
-                   + 'n_elec = %i\n' %self.n_elec \
-                   + 'n_up = %i\n' %self.n_up \
-                   + 'n_dn = %i\n' %self.n_dn \
-                   + 'Sz_calc = %.1f\n\n' %self.Sz_calc
+                + random_seed_line + '\n\n' \
+                + 'm_r = %.5e\n' %self.m_r \
+                + 'kappa = %.5e\n\n' %self.kappa \
+                + 't = %.5e, t_nau = %.5e %s\n' \
+                %(self.t, self.t_nau, self.eunit) \
+                + 'tp = %.5e, tp_nau = %.5e %s\n\n' \
+                %(self.tp, self.tp_nau, self.eunit) \
+                + 'disturb_hamiltonian = %i\n' %self.disturb_hamiltonian \
+                + 'disturb_coef = % .5e\n\n' %self.disturb_coef \
+                + 'a = %.5e, a_nau = %.5e %s\n\n' \
+                %(self.a, self.a_nau, self.lunit) \
+                + 'total_charge = %s\n' %self.total_charge \
+                + 'Sz = %-6s\n' %self.Sz \
+                + 'spin_order = %s\n' %self.spin_order \
+                + 'spin_order_direction = %s\n\n' \
+                %self.spin_order_direction \
+                + 'n_elec = %i\n' %self.n_elec \
+                + 'n_up = %i\n' %self.n_up \
+                + 'n_dn = %i\n' %self.n_dn \
+                + 'Sz_calc = %.1f\n\n' %self.Sz_calc
                    
         elif self.mode == 'mfh':
             if self.U1 is None:
@@ -309,39 +315,41 @@ class Config():
                 U_LR_line = 'U_LR != None'
         
             string = 'mode = %s\n\n' %self.mode \
-               + random_seed_line + '\n\n' \
-               + 'm_r = %.5e\n' %self.m_r \
-               + 'kappa = %.5e\n\n' %self.kappa \
-               + 't = %.5e, t_nau = %.5e %s\n' \
+                + random_seed_line + '\n\n' \
+                + 'm_r = %.5e\n' %self.m_r \
+                + 'kappa = %.5e\n\n' %self.kappa \
+                + 't = %.5e, t_nau = %.5e %s\n' \
                 %(self.t, self.t_nau, self.eunit) \
-               + 'tp = %.5e, tp_nau = %.5e %s\n\n' \
+                + 'tp = %.5e, tp_nau = %.5e %s\n\n' \
                 %(self.tp, self.tp_nau, self.eunit) \
-               + 'U = %.5e, U_nau = %.5e %s\n' \
+                + 'U = %.5e, U_nau = %.5e %s\n' \
                 %(self.U, self.U_nau, self.eunit) \
-               + 'U/t = %.5f\n' %(self.U / self.t) \
-               + 'U_nau/t_nau = %.5f\n\n' %(self.U_nau / self.t_nau) \
-               + 'U_long_range = %s\n' %self.U_long_range \
-               + U_LR_line + '\n' \
-               + 'U1_U2_scaling = %s\n' %self.U1_U2_scaling \
-               + U1_line + '\n' \
-               + U2_line + '\n' \
-               + U3_line + '\n\n' \
-               + 'mix_ratio = %.3f\n' %self.mix_ratio \
-               + 'delta_E_lim = %.1e\n' %self.delta_E_lim \
-               + 'iter_lim = %i\n' %self.iter_lim \
-               + 'initial_density = %d (%s)\n\n' \
+                + 'U/t = %.5f\n' %(self.U / self.t) \
+                + 'U_nau/t_nau = %.5f\n\n' %(self.U_nau / self.t_nau) \
+                + 'U_long_range = %s\n' %self.U_long_range \
+                + U_LR_line + '\n' \
+                + 'U1_U2_scaling = %s\n' %self.U1_U2_scaling \
+                + U1_line + '\n' \
+                + U2_line + '\n' \
+                + U3_line + '\n\n' \
+                + 'mix_ratio = %.3f\n' %self.mix_ratio \
+                + 'delta_E_lim = %.1e\n' %self.delta_E_lim \
+                + 'iter_lim = %i\n' %self.iter_lim \
+                + 'initial_density = %d (%s)\n\n' \
                 %(self.initial_density, 
                 self._INITIAL_DENSITY[self.initial_density]) \
-               + 'a = %.5e, a_nau = %.5e %s\n\n' \
+                + 'disturb_hamiltonian = %i\n' %self.disturb_hamiltonian \
+                + 'disturb_coef = % .5e\n\n' %self.disturb_coef \
+                + 'a = %.5e, a_nau = %.5e %s\n\n' \
                 %(self.a, self.a_nau, self.lunit) \
-               + 'total_charge = %s\n' %self.total_charge \
-               + 'Sz = %-6s\n' %self.Sz \
-               + 'spin_order = %s\n' %self.spin_order \
-               + 'spin_order_direction = %s\n\n' %self.spin_order_direction \
-               + 'n_elec = %i\n' %self.n_elec \
-               + 'n_up = %i\n' %self.n_up \
-               + 'n_dn = %i\n' %self.n_dn \
-               + 'Sz_calc = %.1f\n\n' %self.Sz_calc
+                + 'total_charge = %s\n' %self.total_charge \
+                + 'Sz = %-6s\n' %self.Sz \
+                + 'spin_order = %s\n' %self.spin_order \
+                + 'spin_order_direction = %s\n\n' %self.spin_order_direction \
+                + 'n_elec = %i\n' %self.n_elec \
+                + 'n_up = %i\n' %self.n_up \
+                + 'n_dn = %i\n' %self.n_dn \
+                + 'Sz_calc = %.1f\n\n' %self.Sz_calc
                
         logger.info(string)
 

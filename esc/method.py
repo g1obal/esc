@@ -40,6 +40,8 @@ class Method():
         self.ind_NN = cfg.ind_NN[:]
         self.ind_NN_2nd = cfg.ind_NN_2nd[:]
         self.n_site = cfg.n_site
+        self.disturb_hamiltonian = cfg.disturb_hamiltonian
+        self.disturb_coef = cfg.disturb_coef
         self.n_up = cfg.n_up
         self.n_dn = cfg.n_dn
         self.ind_up = cfg.ind_up[:]
@@ -57,7 +59,8 @@ class Method():
         
         # Form the tight-binding Hamiltonian matrix
         self.Htb = hamiltonian_tb(
-            self.t, self.tp, self.ind_NN, self.ind_NN_2nd, self.n_site
+            self.t, self.tp, self.ind_NN, self.ind_NN_2nd, self.n_site,
+            self.disturb_hamiltonian, self.disturb_coef
         )
 
     def start(self):
