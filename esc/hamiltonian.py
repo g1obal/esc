@@ -3,7 +3,7 @@ Hamiltonian Generator
 
 Author: Gokhan Oztarhan
 Created date: 20/07/2019
-Last modified: 22/05/2024
+Last modified: 18/10/2025
 """
 
 import time
@@ -52,4 +52,28 @@ def hamiltonian_tb(
     logger.info(string)
     
     return H
+
+
+def conf_pot(
+    H, pos, gndot_v0, gndot_s, gndot_rhox, gndot_rhoy, gndot_kx, gndot_ky
+):
+    "Sets confinement potential."
+    tic = time.time()
+    
+    x2 = pos[:,0] * pos[:,0]
+    y2 = pos[:,1] * pos[:,1]
+    
+    H.ravel()[::H.shape[1]+1] += -gndot_v0 \
+        * np.exp(-((x2 / (gndot_rhox * gndot_rhox) + y2 / (gndot_rhoy * gndot_rhoy))**gndot_s))
+    
+    if gndot_kx > 0 or gndot_ky > 0:
+        H.ravel()[::H.shape[1]+1] += gndot_kx * x2 + gndot_ky * y2
+    
+    toc = time.time()
+
+    string = 'conf_pot done. (%.3f s)\n\n' %(toc-tic)
+    logger.info(string)
+    
+    return H
+
 

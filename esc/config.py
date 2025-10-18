@@ -3,7 +3,7 @@ Config
 
 Author: Gokhan Oztarhan
 Created date: 06/03/2021
-Last modified: 22/05/2024
+Last modified: 18/10/2025
 """
 
 from copy import deepcopy
@@ -86,6 +86,14 @@ class Config():
                                 # 3: random(integer), 
                                 # 4: random(float),
                                 # 5: zero
+        
+        self.conf_pot = int(self.conf_pot)
+        self.gndot_v0 = float(self.gndot_v0)
+        self.gndot_s = float(self.gndot_s)
+        self.gndot_rhox = float(self.gndot_rhox)
+        self.gndot_rhoy = float(self.gndot_rhoy)
+        self.gndot_kx = float(self.gndot_kx)
+        self.gndot_ky = float(self.gndot_ky)
                                 
         self.disturb_hamiltonian = bool(self.disturb_hamiltonian)
         self.disturb_coef = float(self.disturb_coef) 
@@ -125,6 +133,9 @@ class Config():
         self.full_orb_coef = bool(self.full_orb_coef)
         
         self.plot = bool(self.plot)
+        self.plot_eig = bool(self.plot_eig)
+        for i, element in enumerate(self.eigstates):
+            self.eigstates[i] = int(self.eigstates[i])
         self.n_up_start = int(self.n_up_start)
         self.n_up_end = _type_or_None(int, self.n_up_end)
         self.n_dn_start = int(self.n_dn_start)
@@ -132,8 +143,7 @@ class Config():
         self.plot_E_limit = _type_or_None(float, self.plot_E_limit)
         self.dos_kde_sigma = _type_or_None(float, self.dos_kde_sigma)
         self.psi2_kde_sigma = _type_or_None(float, self.psi2_kde_sigma)
-        self.mesh_resolution = int(self.mesh_resolution)    
-        self.plot_fname = str(self.plot_fname)  
+        self.mesh_resolution = int(self.mesh_resolution)  
         self.plot_dpi = int(self.plot_dpi)
         self.plot_format = str(self.plot_format)
 
@@ -147,6 +157,11 @@ class Config():
         self.U1_nau = deepcopy(self.U1)
         self.U2_nau = deepcopy(self.U2)
         self.U3_nau = deepcopy(self.U3)
+        self.gndot_v0_nau = deepcopy(self.gndot_v0)
+        self.gndot_rhox_nau = deepcopy(self.gndot_rhox)
+        self.gndot_rhoy_nau = deepcopy(self.gndot_rhoy)
+        self.gndot_kx_nau = deepcopy(self.gndot_kx)
+        self.gndot_ky_nau = deepcopy(self.gndot_ky)
         self.a_nau = deepcopy(self.a)
         
         # Initialize atomic units converter
@@ -241,7 +256,19 @@ class Config():
         else:
             self.U_long_range = None
             self.U_LR = None
-                
+        
+        if self.conf_pot:
+            self.gndot_v0 = \
+                auconverter.energy_to_au(self.gndot_v0_nau, self.eunit)
+            self.gndot_rhox = \
+                auconverter.length_to_au(self.gndot_rhox_nau, self.lunit)
+            self.gndot_rhoy = \
+                auconverter.length_to_au(self.gndot_rhoy_nau, self.lunit)
+            self.gndot_ky = \
+                auconverter.energy_to_au(self.gndot_ky_nau, self.eunit)
+            self.gndot_ky = \
+                auconverter.energy_to_au(self.gndot_ky_nau, self.eunit)
+        
         # Set the numpy global random state. This affects all numpy.random 
         # calls throughout the modules in which numpy is imported. We set
         # the global random state since this program is not expected to be
@@ -278,6 +305,18 @@ class Config():
                 %(self.t, self.t_nau, self.eunit) \
                 + 'tp = %.5e, tp_nau = %.5e %s\n\n' \
                 %(self.tp, self.tp_nau, self.eunit) \
+                + 'conf_pot = %i\n' %self.conf_pot \
+                + 'gndot_v0 = %.5e, gndot_v0_nau = %.5e\n' \
+                %(self.gndot_v0, self.gndot_v0_nau) \
+                + 'gndot_s = %.5e\n' %self.gndot_s \
+                + 'gndot_rhox = %.5e, gndot_rhox_nau = %.5e\n' \
+                %(self.gndot_rhox, self.gndot_rhox_nau) \
+                + 'gndot_rhoy = %.5e, gndot_rhoy_nau = %.5e\n' \
+                %(self.gndot_rhoy, self.gndot_rhoy_nau) \
+                + 'gndot_kx = %.5e, gndot_kx_nau = %.5e\n' \
+                %(self.gndot_kx, self.gndot_kx_nau) \
+                + 'gndot_ky = %.5e, gndot_ky_nau = %.5e\n\n' \
+                %(self.gndot_ky, self.gndot_ky_nau) \
                 + 'disturb_hamiltonian = %i\n' %self.disturb_hamiltonian \
                 + 'disturb_coef = % .5e\n\n' %self.disturb_coef \
                 + 'a = %.5e, a_nau = %.5e %s\n\n' \
@@ -338,6 +377,18 @@ class Config():
                 + 'initial_density = %d (%s)\n\n' \
                 %(self.initial_density, 
                 self._INITIAL_DENSITY[self.initial_density]) \
+                + 'conf_pot = %i\n' %self.conf_pot \
+                + 'gndot_v0 = %.5e, gndot_v0_nau = %.5e\n' \
+                %(self.gndot_v0, self.gndot_v0_nau) \
+                + 'gndot_s = %.5e\n' %self.gndot_s \
+                + 'gndot_rhox = %.5e, gndot_rhox_nau = %.5e\n' \
+                %(self.gndot_rhox, self.gndot_rhox_nau) \
+                + 'gndot_rhoy = %.5e, gndot_rhoy_nau = %.5e\n' \
+                %(self.gndot_rhoy, self.gndot_rhoy_nau) \
+                + 'gndot_kx = %.5e, gndot_kx_nau = %.5e\n' \
+                %(self.gndot_kx, self.gndot_kx_nau) \
+                + 'gndot_ky = %.5e, gndot_ky_nau = %.5e\n\n' \
+                %(self.gndot_ky, self.gndot_ky_nau) \
                 + 'disturb_hamiltonian = %i\n' %self.disturb_hamiltonian \
                 + 'disturb_coef = % .5e\n\n' %self.disturb_coef \
                 + 'a = %.5e, a_nau = %.5e %s\n\n' \

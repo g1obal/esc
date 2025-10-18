@@ -7,7 +7,7 @@ Hamiltonians are real symmetric matrices. Otherwise, use numpy.eig() function.
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 21/05/2024
+Last modified: 18/10/2025
 """
 
 import logging
@@ -16,6 +16,7 @@ import numpy as np
 
 from .auconverter import AUConverter
 from .hamiltonian import hamiltonian_tb
+from .hamiltonian import conf_pot
 from .tb import tb
 from .mfh import init_mfh_density, mfh
 
@@ -61,6 +62,13 @@ class Method():
         self.Htb = hamiltonian_tb(
             self.t, self.tp, self.ind_NN, self.ind_NN_2nd, self.n_site,
             self.disturb_hamiltonian, self.disturb_coef
+        )
+        
+        # Set the confinement potential
+        self.Htb = conf_pot(
+            self.Htb, self.pos, 
+            cfg.gndot_v0, cfg.gndot_s, cfg.gndot_rhox, cfg.gndot_rhoy, 
+            cfg.gndot_kx, cfg.gndot_ky
         )
 
     def start(self):

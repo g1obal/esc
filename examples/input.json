@@ -28,6 +28,14 @@
 "iter_lim": 1000,
 "initial_density": 2,
 
+"conf_pot": 1,
+"gndot_v0": 10.0,
+"gndot_s": 2.8,
+"gndot_rhox": 400.0,
+"gndot_rhoy": 400.0,
+"gndot_kx": 0.0,
+"gndot_ky": 0.0,
+
 "disturb_hamiltonian": 0,
 "disturb_coef": 1e-6,
 
@@ -37,11 +45,11 @@
 "spin_order_direction": 1,
 
 "a": 50.0,
-"n_side": 4,
-"width": 1,
-"bc": "xy",
+"n_side": 20,
+"width": 20,
+"bc": "y",
 "lat_type": "honeycomb",
-"flk_type": 1,
+"flk_type": 4,
 
 "overlap_eigstates": 1,
 "overlap_threshold": 1e-10,
@@ -50,15 +58,16 @@
 "full_orb_coef": 0,
 
 "plot": 1,
+"plot_eig": 1,
+"eigstates": [0, 1, 2, 3, 4, 5, 6],
 "n_up_start": 0,
 "n_up_end": null,
 "n_dn_start": 0,
 "n_dn_end": null,
-"plot_E_limit": null,
+"plot_E_limit": 1000000,
 "dos_kde_sigma": null,
 "psi2_kde_sigma": 0.2,
 "mesh_resolution": 500,
-"plot_fname": "summary",
 "plot_dpi": 600,
 "plot_format": "jpg"
 }

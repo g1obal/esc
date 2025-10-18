@@ -3,7 +3,7 @@ Figure plotting module
 
 Author: Gokhan Oztarhan
 Created date: 24/07/2019
-Last modified: 21/05/2024
+Last modified: 18/10/2025
 """
 
 import os
@@ -24,16 +24,10 @@ logger = logging.getLogger(__name__)
 logging.getLogger('numexpr').setLevel(logging.WARNING) # mute np.numexpr info
 
 plt.ioff()
-plt.rcParams.update({
-    'text.usetex': True,
-    'font.family': 'serif',
-    'font.serif': ['Computer Modern Roman'],
-    'text.latex.preamble': r'\usepackage{amsmath}'
-})
 
 
 def plot(cfg, method):
-    plot_summary(
+    plot_all(
         cfg.mode, cfg.eunit, cfg.lunit,
         method.E_up, method.E_dn, cfg.n_up, cfg.n_dn, 
         cfg.a, cfg.a_nau, cfg.pos, cfg.ind_NN, method.V_up, method.V_dn,
@@ -41,10 +35,11 @@ def plot(cfg, method):
         cfg.t, cfg.t_nau, cfg.tp, cfg.tp_nau, 
         cfg.U, cfg.U_nau, cfg.U_long_range, cfg.U1_U2_scaling,
         method.E_total, method.E_total_nau,
-        cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
+        cfg.root_dir, plot_eig=cfg.plot_eig, eigstates=cfg.eigstates,
+        plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution,
-        fname=cfg.plot_fname, dpi=cfg.plot_dpi, _format=cfg.plot_format
+        dpi=cfg.plot_dpi, _format=cfg.plot_format
     )
    
                    
@@ -65,7 +60,7 @@ def replot(cfg, data):
         U_long_range = data['U_long_range']
         U1_U2_scaling = data['U1_U2_scaling']
     
-    plot_summary(
+    plot_all(
         data['mode'], data['eunit'], data['lunit'],
         E_up, E_dn, data['n_up'], data['n_dn'], 
         data['a'], data['a_nau'], data['pos'], data['ind_NN'], V_up, V_dn, 
@@ -73,10 +68,11 @@ def replot(cfg, data):
         data['t'], data['t_nau'], data['tp'], data['tp_nau'], 
         U, U_nau, U_long_range, U1_U2_scaling,
         data['E_total'], data['E_total_nau'],
-        cfg.root_dir, plot_E_limit=cfg.plot_E_limit, 
+        cfg.root_dir, plot_eig=cfg.plot_eig, eigstates=cfg.eigstates,
+        plot_E_limit=cfg.plot_E_limit, 
         dos_kde_sigma=cfg.dos_kde_sigma, psi2_kde_sigma=cfg.psi2_kde_sigma,
         mesh_resolution=cfg.mesh_resolution, 
-        fname=cfg.plot_fname, dpi=cfg.plot_dpi, _format=cfg.plot_format
+        dpi=cfg.plot_dpi, _format=cfg.plot_format
     )
 
 #------------------------------------------------------------------------------
@@ -175,20 +171,30 @@ def electron_densities(
 
 #------------------------------------------------------------------------------
 
-def plot_summary(
+def plot_all(
     mode, eunit, lunit, E_up, E_dn, n_up, n_dn, 
     a, a_nau, pos, ind_NN, V_up, V_dn,
     n_up_start, n_up_end, n_dn_start, n_dn_end,
     t, t_nau, tp, tp_nau, U, U_nau, U_long_range,
     U1_U2_scaling, E_total, E_total_nau,
-    root_dir, plot_E_limit=None, 
+    root_dir, plot_eig=False, eigstates=None,
+    plot_E_limit=None, 
     dos_kde_sigma=None, psi2_kde_sigma=None, mesh_resolution=500,
-    fname='summary', dpi=600, _format='jpg'
+    dpi=600, _format='jpg'
 ):
     tic_all = time.time()
     
+    tic_summary = tic_all
+    
     # Print info start
     logger.info('[plotting]\n----------\n')
+    
+    plt.rcParams.update({
+        'text.usetex': True,
+        'font.family': 'serif',
+        'font.serif': ['Computer Modern Roman'],
+        'text.latex.preamble': r'\usepackage{amsmath}'
+    })
     
     # Initialize figure
     fig = plt.figure(figsize=plt.figaspect(0.80))
@@ -283,12 +289,70 @@ def plot_summary(
     #plt.subplots_adjust(wspace=0.4, hspace=0.25)
     
     # Save figure
-    fname = os.path.join(root_dir, fname) + '.' + _format
+    fname = os.path.join(root_dir, 'summary') + '.' + _format
     fig.savefig(fname, dpi=dpi, format=_format, bbox_inches='tight') 
     plt.close(fig)
     
+    toc_summary = time.time()
+    logger.info('summary done. (%.3f s)\n' %(toc_summary - tic_summary)) 
+    
+    if plot_eig:
+        tic_eig = time.time()
+        
+        plt.rcParams.update({
+            'text.usetex': False,
+            'font.family': 'sans-serif',
+            'font.serif': ['Computer Modern Roman'],
+            'text.latex.preamble': ''
+        })
+        
+        N = len(eigstates)
+        
+        fig, ax = plt.subplots(
+            nrows=N, 
+            ncols=3,
+            figsize=(3 * 4, N * 4),
+            constrained_layout=True
+        )
+    
+        for i in range(N):
+            ax[i,0].set(adjustable='box', aspect=1.0)
+            ax[i,1].set(adjustable='box', aspect=1.0)
+            ax[i,2].set(adjustable='box', aspect=1.0)
+            
+            xlim, ylim, xx, yy, zz_up, zz_dn = electron_densities(
+                a, pos, V_up, V_dn,
+                i, i + 1, i, i + 1, 
+                psi2_kde_sigma, mesh_resolution
+            )
+            
+            fig, ax[i,0] = plot_density_eig(
+                fig, ax[i,0], xlim, ylim, lattice_net, node_positions,
+                xx, yy, zz_up + zz_dn, 'Total Density, $|\\psi|^{2}$'
+            )
+            fig, ax[i,1] = plot_density_eig(
+                fig, ax[i,1], xlim, ylim, lattice_net, node_positions,
+                xx, yy, zz_up, 
+                'Up Density, $|\\psi_{\\uparrow,%i}|^{2}$, ' %i \
+                + '$E_{\\uparrow,%i}=$ %.5e' %(i, E_up_t[i])
+            )
+            fig, ax[i,2] = plot_density_eig(
+                fig, ax[i,2], xlim, ylim, lattice_net, node_positions,
+                xx, yy, zz_dn,
+                'Down Density, $|\\psi_{\\downarrow,%i}|^{2}$, ' %i \
+                + '$E_{\\downarrow,%i}=$ %.5e' %(i, E_dn_t[i])
+            )
+
+        # Save figure
+        fname = os.path.join(root_dir, 'eigstates') + '.' + _format
+        fig.savefig(fname, dpi=100, format=_format, bbox_inches='tight') 
+        plt.close(fig)
+    
+        toc_eig = time.time()
+        logger.info('eigstates done. (%.3f s)\n' %(toc_eig - tic_eig)) 
+    
     toc_all = time.time()
-    logger.info('plot_summary done. (%.3f s)\n' %(toc_all - tic_all)) 
+    logger.info('plot_all done. (%.3f s)\n' %(toc_all - tic_all)) 
 
 
 #------------------------------------------------------------------------------
@@ -504,5 +568,43 @@ def plot_density_updn(
     return fig, ax
 
 
+def plot_density_eig(
+    fig, ax, xlim, ylim, lattice_net, node_positions, xx, yy, zz, title
+):
+    tic = time.time()
+    
+    # Colormap (seismic, bwr, RdYlBu, afmhot, jet) and line settings
+    if title == 'Spin Density':
+        cmap = 'seismic'  
+        zmax = abs(zz).max().max()
+        zlim = [-zmax, zmax] # z-axis special limit for spin density
+    else:
+        cmap = 'jet' 
+        zlim = [zz.min().min(), zz.max().max()]
+    latticecolor = '#616161' # (#616161:gray)
+    latticealpha = 0.5
+    latticewidth = 0.5
+    shading = 'nearest' # shading = 'auto', 'nearest', 'gouraud'
+    
+    # Axis adjustments
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_title(title, fontsize=max(10, int(100 / fig.get_figheight())))
+    
+    # Plot surface and lattice network
+    surf = ax.pcolormesh(
+        xx, yy, zz, vmin=zlim[0], vmax=zlim[1], cmap=cmap, shading=shading
+    )
+    networkx.draw_networkx(
+        lattice_net, pos=node_positions, node_size=0, with_labels=False, 
+        width=latticewidth, edge_color=latticecolor, alpha=latticealpha, ax=ax
+    )
+    
+    logger_info_title = title.split(',')[0]
+    toc = time.time()
+    logger.info('plot_density_eig "%s" done. (%.3f s)\n' \
+        %(logger_info_title, toc - tic)) 
+    
+    return fig, ax
 
 
