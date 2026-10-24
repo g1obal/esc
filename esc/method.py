@@ -7,7 +7,7 @@ Hamiltonians are real symmetric matrices. Otherwise, use numpy.eig() function.
 
 Author: Gokhan Oztarhan
 Created date: 10/12/2021
-Last modified: 18/10/2025
+Last modified: 24/10/2026
 """
 
 import logging
@@ -65,11 +65,12 @@ class Method():
         )
         
         # Set the confinement potential
-        self.Htb = conf_pot(
-            self.Htb, self.pos, 
-            cfg.gndot_v0, cfg.gndot_s, cfg.gndot_rhox, cfg.gndot_rhoy, 
-            cfg.gndot_kx, cfg.gndot_ky
-        )
+        if cfg.conf_pot:
+            self.Htb = conf_pot(
+                self.Htb, self.pos, 
+                cfg.gndot_v0, cfg.gndot_s, cfg.gndot_rhox, cfg.gndot_rhoy, 
+                cfg.gndot_kx, cfg.gndot_ky
+            )
 
     def start(self):
         if self.mode == 'tb':

@@ -28,7 +28,7 @@
 "iter_lim": 1000,
 "initial_density": 2,
 
-"conf_pot": 1,
+"conf_pot": 0,
 "gndot_v0": 10.0,
 "gndot_s": 2.8,
 "gndot_rhox": 400.0,
